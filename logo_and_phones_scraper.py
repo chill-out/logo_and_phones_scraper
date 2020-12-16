@@ -12,8 +12,6 @@ class LogoAndPhonesScraper():
         self.urls = urls
         self.websites_data = []
         self.headers = self._get_headers()
-        self.phone_regex = re.compile('^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$|^\+?\(?[0-9]{1,4}\)?[0-9 -\.]+$')
-        # self.phone_regex = re.compile('(?:(^?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$')
         self.logo_regex = re.compile('.*logo.*', flags=re.IGNORECASE)
 
     def _get_headers(self):
@@ -59,11 +57,7 @@ class LogoAndPhonesScraper():
         return urljoin(url, logo)
     
     def get_phones(self, soup):
-        # using regex
-        # regex = self.phone_regex
-        # regex_phones = soup.findAll(text=regex)         # use regex to extract only phone numbers
         # using telephone links
-        # link_phones = [a.text for a in soup.select("a[href*=tel\:]")]
         link_phones = [a['href'][4:] for a in soup.select("a[href*=tel\:]")]
         # using phonenumbers library
         pn_matches = phonenumbers.PhoneNumberMatcher(soup.text, "US")
@@ -73,6 +67,10 @@ class LogoAndPhonesScraper():
         return all_phones
     
     def download_page(self, url):
+        '''
+        Downloads and returns the contents of a url using the requests module.
+        If the url returns a status code other than 200 the page is discarded.
+        '''
         headers = self.headers
         page = requests.get(url, headers=headers)
         status_code = page.status_code
@@ -94,6 +92,8 @@ class LogoAndPhonesScraper():
         elif not logo.startswith(url):
             logo = self.get_absolute_logo_url(url, logo)
         phones = self.get_phones(soup)
+        if len(phones) == 0:
+            print('Failed to find any phones on "{}"'.format(url), file=sys.stderr)
         website_data = {
             'website': url,
             'logo': logo,
