@@ -19,7 +19,7 @@ When the script is finished, the results are printed in a JSON format.
 
 * Clone the repository using ```git clone https://github.com/chill-out/logo_and_phones_scraper/```
 * Install prerequesites using ```pip install -r requirements.txt```
-* Optionally create a docker image using ```docker build --tag logo_and_phones_scraper:0.1```
+* Optionally create a docker image using ```docker build --tag logo_and_phones_scraper:0.1 .```
 
 ### Executing program
 
